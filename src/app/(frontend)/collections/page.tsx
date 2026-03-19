@@ -1,10 +1,7 @@
-import FilmShelf from '@/components/FilmShelf'
-import { getCuratedShelves, getGenreShelves } from '@/lib/movies'
-
-export const dynamic = 'force-dynamic'
-
 import { getGenres } from '@/lib/movies'
 import GenreGraph from '@/components/GenreGraph'
+
+export const dynamic = 'force-dynamic'
 
 export default async function CollectionsPage() {
   const genres = await getGenres()

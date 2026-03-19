@@ -5,6 +5,7 @@ import { notFound } from 'next/navigation'
 import CinematicHero from '@/components/CinematicHero'
 import FilmShelf from '@/components/FilmShelf'
 import MetadataPanel from '@/components/MetadataPanel'
+import { Movie, MovieCollection, Person } from '@/payload-types'
 import { getMovieBySlug, getRelatedMovies } from '@/lib/movies'
 import '../../styles.css'
 
@@ -40,7 +41,7 @@ export default async function MovieDetailPage(props: { params: Promise<{ slug: s
   ].map((path) => `https://image.tmdb.org/t/p/original${path}`)
 
   // Ensure collection is type-safe
-  const partOfCollection = movie.collection && typeof movie.collection === 'object' ? (movie.collection as any) : null
+  const partOfCollection = movie.collection && typeof movie.collection === 'object' ? (movie.collection as MovieCollection) : null
 
   return (
     <div className="pageShell detailShell">
@@ -86,14 +87,17 @@ export default async function MovieDetailPage(props: { params: Promise<{ slug: s
               <h2>People behind the signal</h2>
             </div>
             <div className="castGrid">
-              {movie.directors?.map((p: any) => (
-                <Link key={typeof p === 'object' ? p.id : p} href={`/people/${p.slug}`} className="castCard">
-                  <span className="castRole">Director</span>
-                  <strong className="castName">{p.name || 'Unknown'}</strong>
-                </Link>
-              ))}
-              {movie.cast?.map((item: any, idx: number) => {
-                const p = item.person
+              {movie.directors?.map((p_raw: number | Person) => {
+                const p = p_raw as Person
+                return (
+                  <Link key={p.id} href={`/people/${p.slug}`} className="castCard">
+                    <span className="castRole">Director</span>
+                    <strong className="castName">{p.name || 'Unknown'}</strong>
+                  </Link>
+                )
+              })}
+              {movie.cast?.map((item, idx: number) => {
+                const p = item.person as Person
                 if (!p) return null
                 return (
                   <Link key={`${p.id}-${idx}`} href={`/people/${p.slug}`} className="castCard">

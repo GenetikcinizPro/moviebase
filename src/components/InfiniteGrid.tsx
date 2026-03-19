@@ -25,7 +25,7 @@ export default function InfiniteGrid({ initialMovies, watchedIds, filters }: Inf
     setHasMore(true)
   }, [initialMovies, filters])
 
-  const loadMoreMovies = async () => {
+  const loadMoreMovies = React.useCallback(async () => {
     if (loading || !hasMore) return
     
     setLoading(true)
@@ -53,12 +53,12 @@ export default function InfiniteGrid({ initialMovies, watchedIds, filters }: Inf
     } finally {
       setLoading(false)
     }
-  }
+  }, [page, hasMore, loading, filters])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
       entries => {
-        if (entries[0].isIntersecting && hasMore) {
+        if (entries[0].isIntersecting && !loading && hasMore) {
           loadMoreMovies()
         }
       },
@@ -70,7 +70,7 @@ export default function InfiniteGrid({ initialMovies, watchedIds, filters }: Inf
     }
 
     return () => observer.disconnect()
-  }, [hasMore, page, loading, filters])
+  }, [hasMore, page, loading, filters, loadMoreMovies])
 
   return (
     <div className="infiniteGalleryContainer">
