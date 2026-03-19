@@ -30,7 +30,7 @@ const main = async () => {
       const originalFileName = file.name
       
       // 🧼 AGGRESSIVE CLEANING
-      let movieTitleQuery = originalFileName
+      const movieTitleQuery = originalFileName
         .replace(/\.webp$/i, '')            // Remove extension
         .replace(/\(\d+\)/g, '')            // Remove (1), (2) etc.
         .replace(/[-_.+]/g, ' ')           // Replace separators with space
@@ -77,7 +77,7 @@ const main = async () => {
         const { details } = await fetchMovieBundle(tmdbId)
         const genreIds: number[] = []
         for (const tmdbG of details.genres || []) {
-           let gRes = await payload.find({ collection: 'genres', where: { tmdbGenreId: { equals: tmdbG.id } }, limit: 1 })
+           const gRes = await payload.find({ collection: 'genres', where: { tmdbGenreId: { equals: tmdbG.id } }, limit: 1 })
            if (gRes.docs.length === 0) {
              const newG = await payload.create({ collection: 'genres', data: { name: tmdbG.name, tmdbGenreId: tmdbG.id, slug: tmdbG.name.toLowerCase().replace(/\s+/g,'-') } })
              genreIds.push(newG.id as number)
@@ -88,9 +88,18 @@ const main = async () => {
 
         let localCollId: number | undefined = undefined
         if (details.belongs_to_collection) {
-          let cRes = await payload.find({ collection: 'movie-collections', where: { tmdbCollectionId: { equals: details.belongs_to_collection.id } }, limit: 1 })
+          const cRes = await payload.find({ collection: 'movie-collections', where: { tmdbCollectionId: { equals: details.belongs_to_collection.id } }, limit: 1 })
           if (cRes.docs.length === 0) {
-            const newC = await payload.create({ collection: 'movie-collections', data: { name: details.belongs_to_collection.name, tmdbCollectionId: details.belongs_to_collection.id, posterUrl: buildTmdbImageUrl(details.belongs_to_collection.poster_path), backdropUrl: buildTmdbImageUrl(details.belongs_to_collection.backdrop_path) } })
+            const newC = await payload.create({ 
+              collection: 'movie-collections', 
+              data: { 
+                name: details.belongs_to_collection.name, 
+                tmdbCollectionId: details.belongs_to_collection.id, 
+                posterUrl: buildTmdbImageUrl(details.belongs_to_collection.poster_path), 
+                backdropUrl: buildTmdbImageUrl(details.belongs_to_collection.backdrop_path) 
+              },
+              draft: true 
+            })
             localCollId = newC.id as number
           } else {
             localCollId = cRes.docs[0].id as number

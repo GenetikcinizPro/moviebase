@@ -37,8 +37,8 @@ export default function MetadataPanel({ movie }: MetadataPanelProps) {
       </div>
       <div className="metadataGenres">
         {(movie.genres || []).map((genre) => {
-          const g = genre as any
-          const name = typeof g === 'object' ? g.name : 'Genre'
+          const g = genre as Genre
+          const name = g.name || 'Genre'
           return <GenreChip key={`${movie.id}-${name}`} label={name} />
         })}
       </div>

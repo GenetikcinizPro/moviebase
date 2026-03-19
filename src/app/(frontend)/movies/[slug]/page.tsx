@@ -5,7 +5,7 @@ import { notFound } from 'next/navigation'
 import CinematicHero from '@/components/CinematicHero'
 import FilmShelf from '@/components/FilmShelf'
 import MetadataPanel from '@/components/MetadataPanel'
-import { Movie, MovieCollection, Person } from '@/payload-types'
+import { MovieCollection, Person } from '@/payload-types'
 import { getMovieBySlug, getRelatedMovies } from '@/lib/movies'
 import '../../styles.css'
 
@@ -18,14 +18,6 @@ export default async function MovieDetailPage(props: { params: Promise<{ slug: s
   if (!movie) notFound()
 
   const relatedMoviesBatch = await getRelatedMovies(movie, 6)
-  
-  const credits = movie.tmdbRaw?.credits as
-    | {
-        cast?: Array<{ character?: string; name?: string; profile_path?: string }>
-        crew?: Array<{ job?: string; name?: string; profile_path?: string }>
-      }
-    | null
-    | undefined
   
   const images = movie.tmdbRaw?.images as
     | {
