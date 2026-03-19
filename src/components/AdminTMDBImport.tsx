@@ -1,10 +1,18 @@
 'use client'
 
 import React, { useState } from 'react'
+import Image from 'next/image'
+
+type TMDBResult = {
+  id: number
+  title: string
+  poster_path?: string
+  release_date?: string
+}
 
 export default function AdminTMDBImport() {
   const [query, setQuery] = useState('')
-  const [results, setResults] = useState<any[]>([])
+  const [results, setResults] = useState<TMDBResult[]>([])
   const [loading, setLoading] = useState(false)
   const [importingId, setImportingId] = useState<number | null>(null)
   const [message, setMessage] = useState('')
@@ -27,14 +35,15 @@ export default function AdminTMDBImport() {
       } else {
         setMessage('No results found.')
       }
-    } catch (err: any) {
-      setMessage(`Search error: ${err.message}`)
+    } catch (err: unknown) {
+      const error = err as Error
+      setMessage(`Search error: ${error.message}`)
     } finally {
       setLoading(false)
     }
   }
 
-  const handleImport = async (movie: any) => {
+  const handleImport = async (movie: TMDBResult) => {
     setImportingId(movie.id)
     setMessage(`Importing "${movie.title}"...`)
 
@@ -51,8 +60,9 @@ export default function AdminTMDBImport() {
       } else {
         setMessage(`Error: ${data.error}`)
       }
-    } catch (err: any) {
-      setMessage(`Import error: ${err.message}`)
+    } catch (err: unknown) {
+      const error = err as Error
+      setMessage(`Import error: ${error.message}`)
     } finally {
       setImportingId(null)
     }
@@ -130,11 +140,14 @@ export default function AdminTMDBImport() {
                 marginBottom: '4px'
               }}>
                 {m.poster_path ? (
-                  <img
-                    src={`https://image.tmdb.org/t/p/w300${m.poster_path}`}
-                    alt={m.title}
-                    style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  />
+                  <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+                    <Image
+                      src={`https://image.tmdb.org/t/p/w300${m.poster_path}`}
+                      alt={m.title}
+                      fill
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </div>
                 ) : (
                   <div style={{ display: 'grid', placeItems: 'center', height: '100%', color: '#999', fontSize: '0.8rem' }}>No Image</div>
                 )}
